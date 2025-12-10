@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: catalogo-backend
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Data Source=/app/data/catalogo.db
+    volumes:
+      - sqlite_data:/app/data
+    ports:
+      - "5000:5000"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: catalogo-frontend
+    environment:
+      - VITE_API_BASE_URL=http://localhost:5000
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+volumes:
+  sqlite_data:

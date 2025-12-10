@@ -1,0 +1,17 @@
+# Stage 1: build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+COPY ["Catalogo.Api.csproj", "./"]
+RUN dotnet restore "Catalogo.Api.csproj"
+COPY . .
+RUN dotnet publish -c Release -o /app
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+WORKDIR /app
+COPY --from=build /app ./
+RUN rm -rf /var/lib/apt/lists/*
+USER root
+RUN apt-get update && apt-get install -y python3
+COPY auditoria.py .
+ENV ASPNETCORE_HTTP_PORTS=5000
+EXPOSE 5000
+ENTRYPOINT ["dotnet", "Catalogo.Api.dll"]
